@@ -1,7 +1,7 @@
-package org.example.springboottelegrambotjava;
+package org.example.springboottelegrambotjava.conf;
 
 import lombok.RequiredArgsConstructor;
-import org.example.springboottelegrambotjava.conf.TelegramConfig;
+import org.example.springboottelegrambotjava.service.UpdateConsumer;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.longpolling.interfaces.LongPollingUpdateConsumer;
 import org.telegram.telegrambots.longpolling.starter.SpringLongPollingBot;

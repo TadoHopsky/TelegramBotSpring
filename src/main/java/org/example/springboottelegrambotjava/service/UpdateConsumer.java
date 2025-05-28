@@ -1,4 +1,4 @@
-package org.example.springboottelegrambotjava;
+package org.example.springboottelegrambotjava.service;
 
 import lombok.SneakyThrows;
 import org.example.springboottelegrambotjava.conf.TelegramConfig;
@@ -17,9 +17,11 @@ import java.util.List;
 @Component
 public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
     private final TelegramClient telegramClient;
+    private final MainMenuListener mainMenuListener;
 
-    public UpdateConsumer(TelegramConfig telegramConfig) {
+    public UpdateConsumer(TelegramConfig telegramConfig, MainMenuListener mainMenuListener) {
         this.telegramClient = new OkHttpTelegramClient(telegramConfig.telegramBotToken());
+        this.mainMenuListener = mainMenuListener;
     }
 
     /**
@@ -38,7 +40,7 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
             String text = update.getMessage().getText();
 
             if(text.equals("/start")){
-                sendMainMenu(chatId);
+                mainMenuListener.sendMainMenu(chatId);
             }else{
                 SendMessage sendMessage = SendMessage.builder()
                         .text("Я вас не понимаю")
@@ -47,48 +49,6 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
                 telegramClient.execute(sendMessage);
             }
         }
-    }
-
-    /**
-     * Отправляет главное меню пользователю в виде сообщения с inline-кнопками.
-     * <p>
-     * Кнопки:
-     * - "Как меня зовут?" → callbackData = "my_name"
-     * - "Случайное число" → callbackData = "random_number"
-     * - "Генерация изображения" → callbackData = "image_generation"
-     *
-     * @param chatId ID чата, куда отправить меню
-     */
-    @SneakyThrows
-    public void sendMainMenu(Long chatId){
-        SendMessage sendMessage = SendMessage.builder()
-                .text("Добро пожаловать, выберите действие!")
-                .chatId(chatId)
-                .build();
-
-        var button1 = InlineKeyboardButton.builder()
-                .text("Как меня зовут?")
-                .callbackData("my_name")
-                .build();
-        var button2 = InlineKeyboardButton.builder()
-                .text("Случайное число")
-                .callbackData("random_number")
-                .build();
-        var button3 = InlineKeyboardButton.builder()
-                .text("генерация изображения")
-                .callbackData("image_generation")
-                .build();
-
-
-        List<InlineKeyboardRow> buttons = List.of(
-                new InlineKeyboardRow(button1),
-                new InlineKeyboardRow(button2),
-                new InlineKeyboardRow(button3));
-
-        InlineKeyboardMarkup markup = new InlineKeyboardMarkup(buttons);
-
-        sendMessage.setReplyMarkup(markup);
-        telegramClient.execute(sendMessage);
     }
 }
 
